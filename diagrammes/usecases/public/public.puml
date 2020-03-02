@@ -1,0 +1,24 @@
+@startuml
+left to right direction
+actor Client
+database Db
+rectangle App {
+    Client -- (Comment)
+    (Comment) .> (Auth) : include
+    (Comment) --> Db
+
+    Client -- (Consult Posts)
+
+    (Consult Posts) <-- Db
+
+    (Comment) .> (Consult Posts detail) : extends
+
+    Client -- (Create account)
+    (Create account) --> Db
+
+    (Auth) .> (Create account) : include
+
+    Client -- (Contact Admin)
+}
+
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+
+actor Admin
+database Db
+
+rectangle App {
+    (Get Comments to moderate) as (UC1)
+    (Valid Comment) as (UC2)
+    usecase UC3 as "Admin blogpost
+    --
+    Create, Read,
+    Update, Delete"
+
+    Admin -- (UC1)
+    (UC1) <-- Db
+    (UC1) .> (Auth) : include
+
+    Admin -- (UC2)
+    (UC2) .> (UC1) : extends
+    (UC2) --> Db
+
+    Admin -- (UC3)
+    (UC3) .> (Auth) : include
+    (UC3) --> Db
+
+}
+@enduml

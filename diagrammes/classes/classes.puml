@@ -1,0 +1,41 @@
+@startuml
+
+class Post {
+    int id
+    string title
+    string body
+    User author
+    DateTime publishedAt
+    ?DateTime updatedAt
+}
+class Comment {
+    int id
+    string body
+    User author
+    DateTime publishedAt
+    bool visible
+    bool moderated
+    Post post
+}
+Comment *-- Post
+class User {
+    int id
+    string firstname
+    string lastname
+    string email
+    string password
+    ?string description
+}
+class Admin extends User
+
+interface RequestInterface extends MessageInterface
+interface ResponseInterface extends MessageInterface
+class Message implements MessageInterface
+class Request extends Message implements RequestInterface
+class Response extends Message implements ResponseInterface
+
+class Router
+class BaseController
+class BaseRepository
+
+@enduml
