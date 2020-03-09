@@ -1,8 +1,6 @@
 <?php
 
-
-namespace App\Framework\Parser;
-
+namespace Framework\Parser;
 
 class YAMLParser
 {

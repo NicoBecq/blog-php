@@ -1,8 +1,6 @@
 <?php
 
-
-namespace App\Framework\Http;
-
+namespace Framework\Http;
 
 use Psr\Http\Message\StreamInterface;
 
@@ -22,9 +20,9 @@ class Stream implements StreamInterface
     {
         if (is_string($stream)) {
             $this->stream = fopen($stream, $mode);
+        } else {
+            $this->stream = $stream;
         }
-
-        $this->stream = $stream;
     }
 
     /**
@@ -58,7 +56,7 @@ class Stream implements StreamInterface
      */
     public function getSize()
     {
-        return fstat($this->stream)['size'];
+        return fstat($this->stream)['size'] ?? null;
     }
 
     /**
@@ -66,7 +64,11 @@ class Stream implements StreamInterface
      */
     public function tell()
     {
-        return ftell($this->stream);
+        $position = ftell($this->stream);
+
+        if (!$position) throw new \RuntimeException('Can\'t find pointer\'s position.');
+
+        return $position;
     }
 
     /**
@@ -106,9 +108,9 @@ class Stream implements StreamInterface
      */
     public function isWritable()
     {
-        $mod = stream_get_meta_data($this->stream)['mode'];
+        $mode = stream_get_meta_data($this->stream)['mode'];
 
-        return in_array($mod, ['w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+', 'r+']);
+        return in_array($mode, ['w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+', 'r+']);
     }
 
     /**
@@ -124,9 +126,9 @@ class Stream implements StreamInterface
      */
     public function isReadable()
     {
-        $mod = stream_get_meta_data($this->stream)['mode'];
+        $mode = stream_get_meta_data($this->stream)['mode'];
 
-        return in_array($mod, ['r', 'r+', 'w+', 'a+', 'x+', 'c+']);
+        return in_array($mode, ['r', 'r+', 'w+', 'a+', 'x+', 'c+']);
     }
 
     /**
@@ -134,7 +136,7 @@ class Stream implements StreamInterface
      */
     public function read($length)
     {
-        return fread($this->stream, $length);
+        return fread($this->stream, $length) ?? '';
     }
 
     /**
@@ -142,7 +144,11 @@ class Stream implements StreamInterface
      */
     public function getContents()
     {
-        return stream_get_contents($this->stream);
+        $content = stream_get_contents($this->stream);
+
+        if (!$content) throw new \RuntimeException('Unable to read the stream.');
+
+        return $content;
     }
 
     /**
@@ -150,6 +156,12 @@ class Stream implements StreamInterface
      */
     public function getMetadata($key = null)
     {
-        return stream_get_meta_data($this->stream)[$key] ?? null;
+        $streamData = stream_get_meta_data($this->stream);
+
+        if ($key) {
+            return stream_get_meta_data($this->stream)[$key] ?? null;
+        }
+
+        return $streamData;
     }
 }

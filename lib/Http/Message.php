@@ -1,8 +1,6 @@
 <?php
 
-
-namespace App\Framework\Http;
-
+namespace Framework\Http;
 
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;

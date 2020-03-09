@@ -1,10 +1,8 @@
 <?php
 
+namespace Test\Framework\Http;
 
-namespace Framework;
-
-
-use App\Framework\Http\Message;
+use Framework\Http\Message;
 use PHPUnit\Framework\TestCase;
 
 class MessageTest extends TestCase

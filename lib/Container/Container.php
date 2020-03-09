@@ -1,11 +1,8 @@
 <?php
 
-
-namespace App\Framework\Container;
-
+namespace Framework\Container;
 
 use App\Framework\Parser\YAMLParser;
-use phpDocumentor\Reflection\Types\This;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -31,7 +28,6 @@ class Container implements ContainerInterface
     {
         $this->yamlParser = $YAMLParser;
     }
-
 
     /**
      * @inheritDoc
@@ -67,17 +63,22 @@ class Container implements ContainerInterface
      */
     public function has($id)
     {
-        if (!is_string($id)) throw new \InvalidArgumentException(sprintf('Argument must be a string, %s given in Container::has()', is_object($id) ? get_class($id) : gettype($id)));
+        if (!is_string($id)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Argument must be a string, %s given in Container::has()',
+                is_object($id) ? get_class($id) : gettype($id))
+            );
+        }
 
         if (array_key_exists($id, $this->services)) return true;
 
         return false;
     }
 
-    private function setServices()
-    {
-        $this->services = $this->yamlParser->getContent('services');
-    }
+//    private function setServices()
+//    {
+//        $this->services = $this->yamlParser->getContent('services');
+//    }
 
     /**
      * Check if a class have constructor
