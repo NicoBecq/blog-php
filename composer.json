@@ -24,6 +24,7 @@
         "ext-yaml": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.5"
+        "phpunit/phpunit": "^8.5",
+        "symfony/var-dumper": "^5.0"
     }
 }

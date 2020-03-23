@@ -6,7 +6,7 @@ namespace Framework\Container;
 
 use Psr\Container\ContainerExceptionInterface;
 
-class ContainerException implements ContainerExceptionInterface
+class ContainerException extends \Exception implements ContainerExceptionInterface
 {
 
 }

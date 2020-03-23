@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Framework\Http;
+namespace Tests\Framework\Http;
 
 use Framework\Http\Message;
 use PHPUnit\Framework\TestCase;

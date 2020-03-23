@@ -2,7 +2,6 @@
 
 namespace Framework\Container;
 
-use App\Framework\Parser\YAMLParser;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -10,52 +9,59 @@ use Psr\Container\NotFoundExceptionInterface;
 class Container implements ContainerInterface
 {
     /**
-     * Array of service with ['tags' => 'classNameSpace']
+     * Array of service with ['id' => 'classNameSpace']
      * @var array
      */
     private $services = [];
-
-    /**
-     * @var YAMLParser
-     */
-    private $yamlParser;
-
-    /**
-     * Container constructor.
-     * @param YAMLParser $YAMLParser
-     */
-    public function __construct(YAMLParser $YAMLParser)
-    {
-        $this->yamlParser = $YAMLParser;
-    }
 
     /**
      * @inheritDoc
      */
     public function get($id)
     {
-        if ($this->has($id)) {
-            //check if have constructor and args required
-            if ($this->hasConstructor($classNamespace = $this->services[$id])) {
+        if (!$this->has($id)) $this->services[$id] = $id;
 
-                $class = new \ReflectionClass($classNamespace);
-                $constructor = $class->getConstructor();
-                $args = $constructor->getParameters();
-
-                foreach ($args as $key => $name) {
-
-                    $type = $name->getType(); // get the type of arg
-
-                    foreach ($this->services as $argId => $array) {
-                        if ($array['path'] === $type) {
-                            $$name = $this->get($argId);
-                        }
-                    }
-                }
-
-
-            }
+        try {
+            $reflector = new \ReflectionClass($this->services[$id]);
+        } catch (\ReflectionException $e) {
+            throw new ContainerException(sprintf('Critical error while trying to reflect class %s', $id));
         }
+
+        if (!$reflector->isInstantiable()) {
+            throw new ContainerException("This class: \"$id\" is not instantiable");
+        }
+
+        if ($constructor = $reflector->getConstructor()) {
+
+            $params = $constructor->getParameters();
+
+            $resolvedParams = [];
+
+            foreach ($params as $param) {
+
+                if ($paramClass = $param->getClass()) {
+
+                    $resolvedParams[] = $this->get($paramClass->getName());
+
+                } elseif ($param->isDefaultValueAvailable()) {
+
+                    $resolvedParams[] = $param->getDefaultValue();
+
+                } else {
+                    throw new NotFoundException(
+                        sprintf(
+                            'Class: "%s" not found to make instance of %s',
+                            $param->getType(),
+                            $id
+                        )
+                    );
+                }
+            }
+
+            return $reflector->newInstanceArgs($resolvedParams);
+        }
+
+        return $reflector->newInstance();
     }
 
     /**
@@ -65,36 +71,13 @@ class Container implements ContainerInterface
     {
         if (!is_string($id)) {
             throw new \InvalidArgumentException(sprintf(
-                'Argument must be a string, %s given in Container::has()',
-                is_object($id) ? get_class($id) : gettype($id))
+                    'Argument must be a string, %s given in Container::has()',
+                    is_object($id) ? get_class($id) : gettype($id))
             );
         }
 
-        if (array_key_exists($id, $this->services)) return true;
+        if (isset($this->services[$id])) return true;
 
         return false;
-    }
-
-//    private function setServices()
-//    {
-//        $this->services = $this->yamlParser->getContent('services');
-//    }
-
-    /**
-     * Check if a class have constructor
-     * @param $className
-     * @return bool
-     */
-    private function hasConstructor($className)
-    {
-        try {
-            $reflectionClass = new \ReflectionClass($className);
-            $reflectionClass->getConstructor();
-
-            return true;
-        } catch (\ReflectionException $e) {
-
-            return false;
-        }
     }
 }
